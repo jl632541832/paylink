@@ -22,7 +22,7 @@ namespace Essensoft.Paylink.Alipay.Response
         public string Area { get; set; }
 
         /// <summary>
-        /// 用户头像地址
+        /// 用户头像地址。
         /// </summary>
         [JsonPropertyName("avatar")]
         public string Avatar { get; set; }
@@ -40,7 +40,7 @@ namespace Essensoft.Paylink.Alipay.Response
         public string CertNo { get; set; }
 
         /// <summary>
-        /// 【证件类型】0:身份证 1:护照 2:军官证 3:士兵证 4:回乡证 5:临时身份证 6:户口簿 7:警官证 8:台胞证 9:营业执照10:其它证件 11:港澳居民来往内地通行证 12:台湾居民来往大陆通行证 13:台湾居民居住证 14:港澳居民居住证  15:港澳身份证【注意】只有is_certified为T的时候才有意义，否则不保证准确性.
+        /// 【证件类型】0:身份证 1:护照 2:军官证 3:士兵证 4:回乡证 5:临时身份证 6:户口簿 7:警官证 8:台胞证 9:营业执照10:其它证件 11:港澳居民来往内地通行证 12:台湾居民来往大陆通行证 13:台湾居民居住证 14:港澳居民居住证  15:港澳身份证 16:外国人永久居住证【注意】只有is_certified为T的时候才有意义，否则不保证准确性.
         /// </summary>
         [JsonPropertyName("cert_type")]
         public string CertType { get; set; }
@@ -208,7 +208,7 @@ namespace Essensoft.Paylink.Alipay.Response
         public string Mobile { get; set; }
 
         /// <summary>
-        /// 用户昵称
+        /// 用户昵称。
         /// </summary>
         [JsonPropertyName("nick_name")]
         public string NickName { get; set; }
@@ -256,7 +256,7 @@ namespace Essensoft.Paylink.Alipay.Response
         public string Profession { get; set; }
 
         /// <summary>
-        /// 省份名称
+        /// 省份名称。
         /// </summary>
         [JsonPropertyName("province")]
         public string Province { get; set; }
@@ -268,7 +268,7 @@ namespace Essensoft.Paylink.Alipay.Response
         public string TaobaoId { get; set; }
 
         /// <summary>
-        /// 支付宝用户的userId
+        /// 支付宝用户的userId。
         /// </summary>
         [JsonPropertyName("user_id")]
         public string UserId { get; set; }

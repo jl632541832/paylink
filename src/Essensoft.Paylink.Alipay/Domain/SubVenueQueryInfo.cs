@@ -69,6 +69,12 @@ namespace Essensoft.Paylink.Alipay.Domain
         public string PayeeAccount { get; set; }
 
         /// <summary>
+        /// 收款方式 account/空值：通过支付宝账号收款  smid：通过smid收款
+        /// </summary>
+        [JsonPropertyName("payment_method")]
+        public string PaymentMethod { get; set; }
+
+        /// <summary>
         /// 收款方式（间连/直连）
         /// </summary>
         [JsonPropertyName("payment_type")]
@@ -78,7 +84,7 @@ namespace Essensoft.Paylink.Alipay.Domain
         /// 联系电话，多个逗号隔开，不传用主场馆的
         /// </summary>
         [JsonPropertyName("phone")]
-        public string Phone { get; set; }
+        public List<string> Phone { get; set; }
 
         /// <summary>
         /// 场馆图片链接列表 最多5张
@@ -117,6 +123,12 @@ namespace Essensoft.Paylink.Alipay.Domain
         public string SubVenuePid { get; set; }
 
         /// <summary>
+        /// 子场馆商户二级smid（payment_method为smid时必传）
+        /// </summary>
+        [JsonPropertyName("sub_venue_smid")]
+        public string SubVenueSmid { get; set; }
+
+        /// <summary>
         /// 场馆当前状态 安全审核中：infosec-audit 安全审核不通过：infosec-unpass 云验收中： cloud-audit 云验收不通过： cloud-unpass 上架： online 下架： offline 人工下架： manual-offline
         /// </summary>
         [JsonPropertyName("sub_venue_status")]
@@ -126,7 +138,7 @@ namespace Essensoft.Paylink.Alipay.Domain
         /// 标签列表
         /// </summary>
         [JsonPropertyName("tag_list")]
-        public string TagList { get; set; }
+        public List<string> TagList { get; set; }
 
         /// <summary>
         /// 培训信息

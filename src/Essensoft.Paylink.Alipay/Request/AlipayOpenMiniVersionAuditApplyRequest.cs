@@ -136,12 +136,12 @@ namespace Essensoft.Paylink.Alipay.Request
         public FileItem SecondSpecialLicensePic { get; set; }
 
         /// <summary>
-        /// 小程序客服邮箱，如果不填默认采用当前小程序的应用客服邮箱，小程序客服电话和邮箱至少输入一个。
+        /// 小程序客服邮箱，如果不填默认采用当前小程序的应用客服邮箱，小程序客服电话和邮箱至少输入一个。 注意：2021年7月1日后，该字段将逐步灰度为可选字段，请按可选开发。 
         /// </summary>
         public string ServiceEmail { get; set; }
 
         /// <summary>
-        /// 小程序客服电话，长度限制5~30个字符，仅支持包含数字和-。如果不填默认采用当前小程序的应用客服电话，小程序客服电话和邮箱至少输入一个。
+        /// 小程序客服电话，长度限制5~30个字符，仅支持包含数字和-。如果不填默认采用当前小程序的应用客服电话，小程序客服电话和邮箱至少输入一个。 注意：2021年7月1日后，该字段将逐步灰度为必填字段，请按必填开发。
         /// </summary>
         public string ServicePhone { get; set; }
 
@@ -195,6 +195,7 @@ namespace Essensoft.Paylink.Alipay.Request
         private string notifyUrl;
         private string returnUrl;
         private AlipayObject bizModel;
+        private Dictionary<string, string> udfParams; //add user-defined text parameters
 
         public void SetNeedEncrypt(bool needEncrypt)
         {
@@ -271,6 +272,15 @@ namespace Essensoft.Paylink.Alipay.Request
             return "alipay.open.mini.version.audit.apply";
         }
 
+        public void PutOtherTextParam(string key, string value)
+        {
+            if (udfParams == null)
+            {
+                udfParams = new Dictionary<string, string>();
+            }
+            udfParams.Add(key, value);
+        }
+
         public IDictionary<string, string> GetParameters()
         {
             var parameters = new AlipayDictionary
@@ -295,6 +305,10 @@ namespace Essensoft.Paylink.Alipay.Request
                 { "test_password", TestPassword },
                 { "version_desc", VersionDesc }
             };
+            if (udfParams != null)
+            {
+                parameters.AddAll(udfParams);
+            }
             return parameters;
         }
 

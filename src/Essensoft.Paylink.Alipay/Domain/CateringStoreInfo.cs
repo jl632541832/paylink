@@ -21,7 +21,7 @@ namespace Essensoft.Paylink.Alipay.Domain
         public CateringStoreDeliveryInfo DeliveryInfo { get; set; }
 
         /// <summary>
-        /// 人均消费
+        /// 人均消费。单位为元，精确到小数点后两位。
         /// </summary>
         [JsonPropertyName("per_consumption")]
         public string PerConsumption { get; set; }
@@ -51,19 +51,19 @@ namespace Essensoft.Paylink.Alipay.Domain
         public List<ExtraInfo> StoreExtraInfo { get; set; }
 
         /// <summary>
-        /// 商家门店id
+        /// 商家门店id（ISV内部门店唯一编号）
         /// </summary>
         [JsonPropertyName("store_id")]
         public string StoreId { get; set; }
 
         /// <summary>
-        /// 门店名称
+        /// 门店名称，比如：蚂蚁金服店，不需要“(”  “)”等辅助标记，与门店名称合并后对外展示如星巴克(蚂蚁金服店)
         /// </summary>
         [JsonPropertyName("store_name")]
         public string StoreName { get; set; }
 
         /// <summary>
-        /// 门店联系方式
+        /// 门店联系方式，支持手机号和固定电话。请输入合法的手机号码或者固定号码，其中其中固定号码的区号3到4位，电话7到8位，分机号选填(例：固定电话：0834-1133567 或者 0834-1133567-1234）
         /// </summary>
         [JsonPropertyName("store_phone")]
         public string StorePhone { get; set; }

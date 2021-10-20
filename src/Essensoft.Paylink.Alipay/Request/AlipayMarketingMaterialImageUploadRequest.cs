@@ -14,6 +14,11 @@ namespace Essensoft.Paylink.Alipay.Request
         /// </summary>
         public FileItem FileContent { get; set; }
 
+        /// <summary>
+        /// 文件业务标识.  该字段某些场景下必选. 具体该字段在哪些场景下需要传入，会在不同的接口处进行描述。  例如：alipay.marketing.activity.ordervoucher.create接口的voucher_image字段.就清楚描述了.需要使用该接口上传图片，同时指定file_key为PROMO_VOUCHER_IMAGE
+        /// </summary>
+        public string FileKey { get; set; }
+
         #region IAlipayRequest Members
 
         private bool needEncrypt = false;
@@ -24,6 +29,7 @@ namespace Essensoft.Paylink.Alipay.Request
         private string notifyUrl;
         private string returnUrl;
         private AlipayObject bizModel;
+        private Dictionary<string, string> udfParams; //add user-defined text parameters
 
         public void SetNeedEncrypt(bool needEncrypt)
         {
@@ -100,9 +106,25 @@ namespace Essensoft.Paylink.Alipay.Request
             return "alipay.marketing.material.image.upload";
         }
 
+        public void PutOtherTextParam(string key, string value)
+        {
+            if (udfParams == null)
+            {
+                udfParams = new Dictionary<string, string>();
+            }
+            udfParams.Add(key, value);
+        }
+
         public IDictionary<string, string> GetParameters()
         {
-            var parameters = new AlipayDictionary();
+            var parameters = new AlipayDictionary
+            {
+                { "file_key", FileKey }
+            };
+            if (udfParams != null)
+            {
+                parameters.AddAll(udfParams);
+            }
             return parameters;
         }
 

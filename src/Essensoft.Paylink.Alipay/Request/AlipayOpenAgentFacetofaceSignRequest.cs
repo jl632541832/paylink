@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Essensoft.Paylink.Alipay.Domain;
 using Essensoft.Paylink.Alipay.Response;
 using Essensoft.Paylink.Alipay.Utility;
 
@@ -19,6 +20,11 @@ namespace Essensoft.Paylink.Alipay.Request
         /// 营业执照授权函图片，个体工商户如果使用总公司或其他公司的营业执照认证需上传该授权函图片，最小5KB，最大5M（暂不限制图片宽高），图片格式必须为：png、bmp、gif、jpg、jpeg
         /// </summary>
         public FileItem BusinessLicenseAuthPic { get; set; }
+
+        /// <summary>
+        /// 营业执照法人手机号码
+        /// </summary>
+        public string BusinessLicenseMobile { get; set; }
 
         /// <summary>
         /// 营业执照号码
@@ -41,7 +47,7 @@ namespace Essensoft.Paylink.Alipay.Request
         public Nullable<bool> LongTerm { get; set; }
 
         /// <summary>
-        /// 商家经营类目编码。详情可参考 <a href="https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.59bgD2&treeId=222&articleId=105364&docType=1#s1">商家经营类目</a> 中的“经营类目编码”
+        /// 商家经营类目编码。详情可参考 <a href="https://opendocs.alipay.com/open/01n22g#%E5%95%86%E5%AE%B6%E7%BB%8F%E8%90%A5%E7%B1%BB%E7%9B%AE">商家经营类目</a> 中的“二级类目code”。
         /// </summary>
         public string MccCode { get; set; }
 
@@ -49,6 +55,16 @@ namespace Essensoft.Paylink.Alipay.Request
         /// 服务费率（%），0.38~0.6 之间（小数点后两位，可取0.38%及0.6%）。 当签约且授权标识 sign_and_auth=true 时，该费率信息必填。
         /// </summary>
         public string Rate { get; set; }
+
+        /// <summary>
+        /// 店铺地址
+        /// </summary>
+        public SignAddressInfo ShopAddress { get; set; }
+
+        /// <summary>
+        /// 店铺名称
+        /// </summary>
+        public string ShopName { get; set; }
 
         /// <summary>
         /// 店铺内景图片，最小5KB，最大5M（暂不限制图片宽高），图片格式必须为：png、bmp、gif、jpg、jpeg
@@ -66,7 +82,7 @@ namespace Essensoft.Paylink.Alipay.Request
         public Nullable<bool> SignAndAuth { get; set; }
 
         /// <summary>
-        /// 企业特殊资质图片，当mcc_code为需要特殊资质类目时必填。可参考 <a href="https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.59bgD2&treeId=222&articleId=105364&docType=1#s1">商家经营类目</a> 中的“需要的特殊资质证书”，最小5KB ，最大5M（暂不限制图片宽高），图片格式必须为：png、bmp、gif、jpg、jpeg
+        /// 企业特殊资质图片，当mcc_code为需要特殊资质类目时必填。可参考 <a href="https://opendocs.alipay.com/open/01n22g#%E5%95%86%E5%AE%B6%E7%BB%8F%E8%90%A5%E7%B1%BB%E7%9B%AE">商家经营类目</a> 中的“所需资质”，最小5KB ，最大5M（暂不限制图片宽高），图片格式必须为：png、bmp、gif、jpg、jpeg
         /// </summary>
         public FileItem SpecialLicensePic { get; set; }
 
@@ -80,6 +96,7 @@ namespace Essensoft.Paylink.Alipay.Request
         private string notifyUrl;
         private string returnUrl;
         private AlipayObject bizModel;
+        private Dictionary<string, string> udfParams; //add user-defined text parameters
 
         public void SetNeedEncrypt(bool needEncrypt)
         {
@@ -156,18 +173,34 @@ namespace Essensoft.Paylink.Alipay.Request
             return "alipay.open.agent.facetoface.sign";
         }
 
+        public void PutOtherTextParam(string key, string value)
+        {
+            if (udfParams == null)
+            {
+                udfParams = new Dictionary<string, string>();
+            }
+            udfParams.Add(key, value);
+        }
+
         public IDictionary<string, string> GetParameters()
         {
             var parameters = new AlipayDictionary
             {
                 { "batch_no", BatchNo },
+                { "business_license_mobile", BusinessLicenseMobile },
                 { "business_license_no", BusinessLicenseNo },
                 { "date_limitation", DateLimitation },
                 { "long_term", LongTerm },
                 { "mcc_code", MccCode },
                 { "rate", Rate },
+                { "shop_address", ShopAddress },
+                { "shop_name", ShopName },
                 { "sign_and_auth", SignAndAuth }
             };
+            if (udfParams != null)
+            {
+                parameters.AddAll(udfParams);
+            }
             return parameters;
         }
 
