@@ -1,18 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Essensoft.Paylink.WeChatPay.V2.Response;
 
 namespace Essensoft.Paylink.WeChatPay.V2.Request
 {
     /// <summary>
-    /// 提交刷卡支付 (普通商户 / 服务商)
+    /// 微信代扣 - 乘车码代扣 - 申请扣款 (直连)
     /// </summary>
-    public class WeChatPayMicroPayRequest : IWeChatPayRequest<WeChatPayMicroPayResponse>
+    public class WeChatPayTransitPayPayApplyRequest : IWeChatPayRequest<WeChatPayTransitPayPayApplyResponse>
     {
-        /// <summary>
-        /// 设备号
-        /// </summary>
-        public string DeviceInfo { get; set; }
-
         /// <summary>
         /// 商品描述
         /// </summary>
@@ -49,29 +46,29 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         public string SpBillCreateIp { get; set; }
 
         /// <summary>
-        /// 订单优惠标记
+        /// 商品标记
         /// </summary>
-        public string GoodsTag { get; set; }
+        public int GoodsTag { get; set; }
 
         /// <summary>
-        /// 指定支付方式
+        /// 回调通知url
         /// </summary>
-        public string LimitPay { get; set; }
+        public string NotifyUrl { get; set; }
 
         /// <summary>
-        /// 交易起始时间
+        /// 交易类型
         /// </summary>
-        public string TimeStart { get; set; }
+        public string TradeType { get; set; }
 
         /// <summary>
-        /// 交易结束时间
+        /// 委托代扣协议id
         /// </summary>
-        public string TimeExpire { get; set; }
+        public string ContractId { get; set; }
 
         /// <summary>
-        /// 授权码
+        /// 交易场景
         /// </summary>
-        public string AuthCode { get; set; }
+        public string TradeScene { get; set; }
 
         /// <summary>
         /// 场景信息
@@ -85,8 +82,8 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
 
         #region IWeChatPayRequest Members
 
-        private string requestUrl = "https://api.mch.weixin.qq.com/pay/micropay";
-        private WeChatPaySignType signType = WeChatPaySignType.MD5;
+        private string requestUrl = "https://api.mch.weixin.qq.com/transit/pay/payapply";
+        private WeChatPaySignType signType = WeChatPaySignType.HMAC_SHA256;
 
         public string GetRequestUrl()
         {
@@ -102,7 +99,6 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         {
             var parameters = new WeChatPayDictionary
             {
-                { "device_info", DeviceInfo },
                 { "body", Body },
                 { "detail", Detail },
                 { "attach", Attach },
@@ -111,10 +107,10 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
                 { "fee_type", FeeType },
                 { "spbill_create_ip", SpBillCreateIp },
                 { "goods_tag", GoodsTag },
-                { "limit_pay", LimitPay },
-                { "time_start", TimeStart },
-                { "time_expire", TimeExpire },
-                { "auth_code", AuthCode },
+                { "notify_url", NotifyUrl },
+                { "trade_type", TradeType },
+                { "contract_id", ContractId },
+                { "trade_scene", TradeScene },
                 { "scene_info", SceneInfo },
                 { "profit_sharing", ProfitSharing }
             };
@@ -128,22 +124,20 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
 
         public void SetSignType(WeChatPaySignType signType)
         {
-            this.signType = signType;
+            this.signType = signType switch
+            {
+                WeChatPaySignType.HMAC_SHA256 => signType,
+                _ => throw new WeChatPayException("api only support HMAC_SHA256!"),
+            };
         }
 
         public void PrimaryHandler(WeChatPayDictionary sortedTxtParams, WeChatPayOptions options)
         {
             sortedTxtParams.Add(WeChatPayConsts.nonce_str, WeChatPayUtility.GenerateNonceStr());
             sortedTxtParams.Add(WeChatPayConsts.appid, options.AppId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_appid, options.SubAppId);
             sortedTxtParams.Add(WeChatPayConsts.mch_id, options.MchId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_mch_id, options.SubMchId);
 
-            if (signType == WeChatPaySignType.HMAC_SHA256)
-            {
-                sortedTxtParams.Add(WeChatPayConsts.sign_type, signType);
-            }
-
+            sortedTxtParams.Add(WeChatPayConsts.sign_type, signType);
             sortedTxtParams.Add(WeChatPayConsts.sign, WeChatPaySignature.SignWithKey(sortedTxtParams, options.APIKey, signType));
         }
 

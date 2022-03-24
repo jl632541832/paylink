@@ -1,41 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Essensoft.Paylink.WeChatPay.V2.Response;
 
 namespace Essensoft.Paylink.WeChatPay.V2.Request
 {
     /// <summary>
-    /// 酒店押金 - 消费押金 (服务商)
+    /// 微信代扣 - 乘车码代扣 - 用户状态查询 (直连模式)
     /// </summary>
-    public class WeChatPayDepositConsumeRequest : IWeChatPayCertRequest<WeChatPayDepositConsumeResponse>
+    public class WeChatPayTransitPayQueryStateRequest : IWeChatPayRequest<WeChatPayTransitPayQueryStateResponse>
     {
         /// <summary>
-        /// 微信订单号
+        /// 委托代扣协议id
         /// </summary>
-        public string TransactionId { get; set; }
+        public string ContractId { get; set; }
 
         /// <summary>
-        /// 商户订单号
+        /// 微信OpenId
         /// </summary>
-        public string OutTradeNo { get; set; }
-
-        /// <summary>
-        /// 押金总金额
-        /// </summary>
-        public int TotalFee { get; set; }
-
-        /// <summary>
-        /// 消费金额
-        /// </summary>
-        public int ConsumeFee { get; set; }
-
-        /// <summary>
-        /// 货币类型
-        /// </summary>
-        public string FeeType { get; set; }
+        public string OpenId { get; set; }
 
         #region IWeChatPayRequest Members
 
-        private string requestUrl = "https://api.mch.weixin.qq.com/deposit/consume";
+        private string requestUrl = "https://api.mch.weixin.qq.com/transit/pay/querystate";
         private WeChatPaySignType signType = WeChatPaySignType.HMAC_SHA256;
 
         public string GetRequestUrl()
@@ -52,11 +39,8 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         {
             var parameters = new WeChatPayDictionary
             {
-                { "transaction_id", TransactionId },
-                { "out_trade_no", OutTradeNo },
-                { "total_fee", TotalFee },
-                { "consume_fee", ConsumeFee },
-                { "fee_type", FeeType },
+                { "contract_id", ContractId },
+                { "openid", OpenId },
             };
             return parameters;
         }
@@ -79,9 +63,7 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         {
             sortedTxtParams.Add(WeChatPayConsts.nonce_str, WeChatPayUtility.GenerateNonceStr());
             sortedTxtParams.Add(WeChatPayConsts.appid, options.AppId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_appid, options.SubAppId);
             sortedTxtParams.Add(WeChatPayConsts.mch_id, options.MchId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_mch_id, options.SubMchId);
 
             sortedTxtParams.Add(WeChatPayConsts.sign_type, signType);
             sortedTxtParams.Add(WeChatPayConsts.sign, WeChatPaySignature.SignWithKey(sortedTxtParams, options.APIKey, signType));

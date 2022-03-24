@@ -4,39 +4,34 @@ using Essensoft.Paylink.WeChatPay.V2.Response;
 namespace Essensoft.Paylink.WeChatPay.V2.Request
 {
     /// <summary>
-    /// 酒店押金 - 消费押金 (服务商)
+    /// 微信代扣 - 查询签约关系 (直连)
     /// </summary>
-    public class WeChatPayDepositConsumeRequest : IWeChatPayCertRequest<WeChatPayDepositConsumeResponse>
+    public class WeChatPayPaPayQueryContractRequest : IWeChatPayRequest<WeChatPayPaPayQueryContractResponse>
     {
         /// <summary>
-        /// 微信订单号
+        /// 委托代扣协议id
         /// </summary>
-        public string TransactionId { get; set; }
+        public string ContractId { get; set; }
 
         /// <summary>
-        /// 商户订单号
+        /// 模板id
         /// </summary>
-        public string OutTradeNo { get; set; }
+        public string PlanId { get; set; }
 
         /// <summary>
-        /// 押金总金额
+        /// 签约协议号
         /// </summary>
-        public int TotalFee { get; set; }
+        public string ContractCode { get; set; }
 
         /// <summary>
-        /// 消费金额
+        /// 版本号
         /// </summary>
-        public int ConsumeFee { get; set; }
-
-        /// <summary>
-        /// 货币类型
-        /// </summary>
-        public string FeeType { get; set; }
+        public string Version { get; set; }
 
         #region IWeChatPayRequest Members
 
-        private string requestUrl = "https://api.mch.weixin.qq.com/deposit/consume";
-        private WeChatPaySignType signType = WeChatPaySignType.HMAC_SHA256;
+        private string requestUrl = "https://api.mch.weixin.qq.com/papay/querycontract";
+        private WeChatPaySignType signType = WeChatPaySignType.MD5;
 
         public string GetRequestUrl()
         {
@@ -52,11 +47,10 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         {
             var parameters = new WeChatPayDictionary
             {
-                { "transaction_id", TransactionId },
-                { "out_trade_no", OutTradeNo },
-                { "total_fee", TotalFee },
-                { "consume_fee", ConsumeFee },
-                { "fee_type", FeeType },
+                { "contract_id", ContractId },
+                { "plan_id", PlanId },
+                { "contract_code", ContractCode },
+                { "version", Version },
             };
             return parameters;
         }
@@ -70,21 +64,22 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         {
             this.signType = signType switch
             {
-                WeChatPaySignType.HMAC_SHA256 => signType,
-                _ => throw new WeChatPayException("api only support HMAC_SHA256!"),
+                WeChatPaySignType.MD5 => signType,
+                _ => throw new WeChatPayException("api only support MD5!"),
             };
         }
 
         public void PrimaryHandler(WeChatPayDictionary sortedTxtParams, WeChatPayOptions options)
         {
-            sortedTxtParams.Add(WeChatPayConsts.nonce_str, WeChatPayUtility.GenerateNonceStr());
             sortedTxtParams.Add(WeChatPayConsts.appid, options.AppId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_appid, options.SubAppId);
             sortedTxtParams.Add(WeChatPayConsts.mch_id, options.MchId);
-            sortedTxtParams.Add(WeChatPayConsts.sub_mch_id, options.SubMchId);
 
-            sortedTxtParams.Add(WeChatPayConsts.sign_type, signType);
             sortedTxtParams.Add(WeChatPayConsts.sign, WeChatPaySignature.SignWithKey(sortedTxtParams, options.APIKey, signType));
+        }
+
+        public bool GetNeedCheckSign()
+        {
+            return false;
         }
 
         #endregion

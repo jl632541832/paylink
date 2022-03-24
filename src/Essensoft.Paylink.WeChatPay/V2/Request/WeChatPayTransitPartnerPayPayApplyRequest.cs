@@ -36,12 +36,12 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         /// <summary>
         /// 货币类型
         /// </summary>
-        public int FeeType { get; set; }
+        public string FeeType { get; set; }
 
         /// <summary>
         /// 终端IP
         /// </summary>
-        public int SpBillCreateIp { get; set; }
+        public string SpBillCreateIp { get; set; }
 
         /// <summary>
         /// 商品标记
@@ -51,17 +51,17 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
         /// <summary>
         /// 回调通知url
         /// </summary>
-        public int NotifyUrl { get; set; }
+        public string NotifyUrl { get; set; }
 
         /// <summary>
         /// 交易类型
         /// </summary>
-        public int TradeType { get; set; }
+        public string TradeType { get; set; }
 
         /// <summary>
         /// 委托代扣协议id
         /// </summary>
-        public int ContractId { get; set; }
+        public string ContractId { get; set; }
 
         /// <summary>
         /// 交易场景
@@ -80,7 +80,7 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
 
         #region IWeChatPayRequest Members
 
-        private string requestUrl = "https://api.mch.weixin.qq.com/vehicle/partnerpay/payapply";
+        private string requestUrl = "https://api.mch.weixin.qq.com/transit/partnerpay/payapply";
         private WeChatPaySignType signType = WeChatPaySignType.HMAC_SHA256;
 
         public string GetRequestUrl()
@@ -137,7 +137,7 @@ namespace Essensoft.Paylink.WeChatPay.V2.Request
             sortedTxtParams.Add(WeChatPayConsts.mch_id, options.MchId);
             sortedTxtParams.Add(WeChatPayConsts.sub_mch_id, options.SubMchId);
 
-            sortedTxtParams.Add(WeChatPayConsts.sign_type, signType.ToString());
+            sortedTxtParams.Add(WeChatPayConsts.sign_type, signType);
             sortedTxtParams.Add(WeChatPayConsts.sign, WeChatPaySignature.SignWithKey(sortedTxtParams, options.APIKey, signType));
         }
 
