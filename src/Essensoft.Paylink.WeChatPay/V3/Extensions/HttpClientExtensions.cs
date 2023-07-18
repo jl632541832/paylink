@@ -89,6 +89,43 @@ namespace Essensoft.Paylink.WeChatPay.V3.Extensions
             }
         }
 
+        public static async Task<(WeChatPayHeaders headers, string body, HttpStatusCode statusCode)> GetAsync<T>(this HttpClient client, IWeChatPayPrivacyGetRequest<T> request, WeChatPayOptions options, string serialNo) where T : WeChatPayResponse
+        {
+            var url = request.GetRequestUrl();
+
+            var queryModel = request.GetQueryModel();
+            if (queryModel != null)
+            {
+                if (url.Contains("?"))
+                {
+                    var txtParams = ConvertToDictionary(queryModel);
+                    url += "&" + WeChatPayUtility.BuildQuery(txtParams);
+                }
+                else
+                {
+                    var txtParams = ConvertToDictionary(queryModel);
+                    url += "?" + WeChatPayUtility.BuildQuery(txtParams);
+                }
+            }
+
+            var token = BuildToken(url, "GET", null, options);
+
+            client.DefaultRequestHeaders.Add(WeChatPayConsts.Wechatpay_Serial, serialNo);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WECHATPAY2-SHA256-RSA2048", token);
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue("Unknown")));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            using (var resp = await client.GetAsync(url))
+            using (var respContent = resp.Content)
+            {
+                var headers = GetWeChatPayHeadersFromResponse(resp);
+                var body = await respContent.ReadAsStringAsync();
+                var statusCode = resp.StatusCode;
+
+                return (headers, body, statusCode);
+            }
+        }
+
         public static async Task<(WeChatPayHeaders headers, string body, HttpStatusCode statusCode)> PostAsync<T>(this HttpClient client, IWeChatPayPrivacyPostRequest<T> request, WeChatPayOptions options, string serialNo) where T : WeChatPayResponse
         {
             var url = request.GetRequestUrl();
@@ -120,8 +157,36 @@ namespace Essensoft.Paylink.WeChatPay.V3.Extensions
 
         private static IDictionary<string, string> ConvertToDictionary(WeChatPayObject obj)
         {
-            var str = JsonSerializer.Serialize(obj, obj.GetType(), jsonSerializerOptions);
-            return JsonSerializer.Deserialize<IDictionary<string, string>>(str, jsonSerializerOptions);
+            var utf8Bytes = JsonSerializer.SerializeToUtf8Bytes(obj, obj.GetType(), jsonSerializerOptions);
+            var jsonElementParameters = JsonSerializer.Deserialize<IDictionary<string, JsonElement>>(utf8Bytes);
+
+            var txtParameters = new Dictionary<string, string>();
+            foreach (var kv in jsonElementParameters)
+            {
+                switch (kv.Value.ValueKind)
+                {
+                    case JsonValueKind.Object:
+                    case JsonValueKind.Array:
+                        txtParameters.Add(kv.Key, kv.Value.GetRawText());
+                        continue;
+                    case JsonValueKind.String:
+                        txtParameters.Add(kv.Key, kv.Value.GetString()!);
+                        continue;
+                    case JsonValueKind.Number:
+                        txtParameters.Add(kv.Key, kv.Value.ToString());
+                        continue;
+                    case JsonValueKind.True:
+                    case JsonValueKind.False:
+                        txtParameters.Add(kv.Key, kv.Value.ToString().ToLowerInvariant());
+                        continue;
+                    case JsonValueKind.Null:
+                    case JsonValueKind.Undefined:
+                    default:
+                        continue;
+                }
+            }
+
+            return txtParameters;
         }
 
         private static string BuildToken(string url, string method, string body, WeChatPayOptions options)
